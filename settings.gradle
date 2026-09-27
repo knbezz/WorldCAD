@@ -1,0 +1,28 @@
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    // Downloads missing JDKs (26.x needs Java 25) automatically.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'worldcad'
+
+// Pure-Java core (meshing, STL/3MF writers) with its unit tests.
+include 'common'
+
+// One Fabric build per supported Minecraft version. They all compile the same code:
+// common/ + fabric/shared/ + a tiny version-specific Compat.java in fabric/<version>/.
+def minecraftVersions = ['1.20.1', '1.21.1', '1.21.11', '26.3']
+minecraftVersions.each { v ->
+    include "fabric-$v"
+    project(":fabric-$v").projectDir = file("fabric/$v")
+}

@@ -1,0 +1,25 @@
+// Pure Java: no Minecraft classes. Compiled for Java 17 so every Minecraft version can use it.
+// The Fabric subprojects compile these sources directly (see fabric/fabric.gradle); this project
+// exists to run the unit tests once.
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "Turn anything you build into a 3D print: stand on two corners with /cad pos1 and /cad pos2, then export a clean, print-ready STL. Commands only, no items, fully vanilla-compatible. Type /cad for help.",
+  "authors": ["Knbezz"],
+  "license": "CC-BY-NC-SA-4.0",
+  "icon": "assets/worldcad/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.worldcad.WorldCad"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "${minecraft_dependency}",
+    "java": "${java_dependency}",
+    "fabric-api": "*"
+  }
+}

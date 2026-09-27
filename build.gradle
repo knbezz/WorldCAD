@@ -1,0 +1,22 @@
+plugins {
+    // Declared once here so every version subproject shares the same Loom classes.
+    // Minecraft up to 1.21.11 is obfuscated (remapped with Mojang's official names); 26.x is not.
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}" apply false
+    id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
+}
+
+// ./gradlew buildAll  →  one jar per Minecraft version in build/release/
+tasks.register('buildAll', Copy) {
+    group = 'build'
+    description = 'Builds WorldCAD for every supported Minecraft version and collects the jars.'
+    def fabricProjects = subprojects.findAll { it.name.startsWith('fabric-') }
+    dependsOn(':common:test')
+    fabricProjects.each { p ->
+        dependsOn("${p.path}:build")
+        from(p.layout.buildDirectory.dir('libs')) {
+            include '*.jar'
+            exclude '*-sources.jar'
+        }
+    }
+    into layout.buildDirectory.dir('release')
+}

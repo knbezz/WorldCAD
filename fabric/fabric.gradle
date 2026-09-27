@@ -1,0 +1,60 @@
+// Shared build logic for fabric/<version>/. Each version's build.gradle applies the right Loom
+// plugin and this script; its gradle.properties sets minecraft_version, fabric_api_version,
+// java_release, java_toolchain and minecraft_dependency.
+
+def remap = plugins.hasPlugin('net.fabricmc.fabric-loom-remap')
+def modId = rootProject.property('mod_id')
+
+version = "${rootProject.mod_version}+mc${project.minecraft_version}"
+group = rootProject.maven_group
+
+base {
+    archivesName = modId
+}
+
+sourceSets {
+    main {
+        java.srcDirs += [rootProject.file('common/src/main/java'), rootProject.file('fabric/shared/src/main/java')]
+        resources.srcDirs += [rootProject.file('fabric/shared/src/main/resources')]
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    if (remap) {
+        mappings loom.officialMojangMappings()
+        modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    } else {
+        implementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    }
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(project.java_toolchain as int)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = project.java_release as int
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    // Ship the license inside every jar (CC BY-NC-SA requires the notice to travel with the work).
+    from(rootProject.file('LICENSE')) { rename { 'LICENSE_worldcad' } }
+}
+
+processResources {
+    def props = [
+            version             : project.version.toString(),
+            mod_id              : modId,
+            mod_name            : rootProject.mod_name,
+            minecraft_dependency: project.minecraft_dependency,
+            java_dependency     : ">=${project.java_release}".toString(),
+    ]
+    inputs.properties props
+    filesMatching('fabric.mod.json') {
+        expand props
+    }
+}
